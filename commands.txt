@@ -1,0 +1,32 @@
+docker network create my-network
+
+docker volume create pg_data
+
+docker run -d \
+  --name postgres_container \
+  --network my-network \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=secretpassword \
+  -e POSTGRES_DB=testdb \
+  -v pg_data:/var/lib/postgresql/data \
+  postgres:15-alpine
+
+
+docker build -t db-app .
+
+docker run -d \
+  --name fastapi_container \
+  --network my-network \
+  -p 8000:8000 \
+  -e DB_HOST=postgres_container \
+  -e DB_NAME=testdb \
+  -e DB_USER=postgres \
+  -e DB_PASSWORD=secretpassword \
+    db-app
+
+
+docker compose up --build -d
+docker compose down
+
+
+

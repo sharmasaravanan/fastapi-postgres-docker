@@ -1,0 +1,33 @@
+name: 'Database API App'
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  web:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=testdb
+      - DB_USER=postgres
+      - DB_PASSWORD=secretpassword
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgres_data:
